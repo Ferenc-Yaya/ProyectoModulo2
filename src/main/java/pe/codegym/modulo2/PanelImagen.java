@@ -9,12 +9,13 @@ import java.nio.file.Paths;
 import javax.imageio.ImageIO;
 
 class PanelImagen extends JPanel {
-    public static final Path RUTA= Paths.get("ficheros");
+    public static final Path RUTA= Paths.get("ficheros","isla.png");
     private BufferedImage fondo;
 
     public PanelImagen() {
         try {
-            fondo = ImageIO.read(new File(RUTA.resolve("isla.png").toString()));
+            File imagenFile = RUTA.toFile();
+            fondo = ImageIO.read(imagenFile);
         } catch (Exception e) {
             e.printStackTrace();
         }
