@@ -1,7 +1,7 @@
 package pe.codegym.modulo2.carnivoros;
 
-import pe.codegym.modulo2.herbivoros.Herbivoro;
+import pe.codegym.modulo2.Animal;
 
 public interface Carnivoro {
-    String cazar(Herbivoro herbivoro);
+    String cazar(Animal animal);
 }

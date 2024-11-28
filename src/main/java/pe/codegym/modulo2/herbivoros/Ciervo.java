@@ -16,9 +16,18 @@ public class Ciervo extends Animal implements Herbivoro {
     }
 
     @Override
+    public double getPeso() {
+        return 300;
+    }
+
+    @Override
+    public double getPesoPerdidoPorMovimiento() {return 50;}
+
+    @Override
     public String pastar(Planta planta) {
-        planta.borrar();
-        planta.eliminar();
+        vidaAnimal+=planta.getPeso();
+        planta.detenerHiloPlanta();
+        planta.eliminarPlanta();
         return getEmoji()+" Una ciervo se comio una planta";
     }
 }

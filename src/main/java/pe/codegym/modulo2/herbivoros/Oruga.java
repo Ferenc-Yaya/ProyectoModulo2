@@ -16,9 +16,16 @@ public class Oruga extends Animal implements Herbivoro {
     }
 
     @Override
+    public double getPeso() {return 0.01;}
+
+    @Override
+    public double getPesoPerdidoPorMovimiento() {return 0;}
+
+    @Override
     public String pastar(Planta planta) {
-        planta.borrar();
-        planta.eliminar();
+        vidaAnimal+=planta.getPeso();
+        planta.detenerHiloPlanta();
+        planta.eliminarPlanta();
         return getEmoji()+" Una oruga se comio una planta";
     }
 }

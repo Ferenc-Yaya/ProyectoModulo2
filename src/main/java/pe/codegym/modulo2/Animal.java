@@ -10,14 +10,15 @@ import java.util.concurrent.ThreadLocalRandom;
 public abstract class Animal implements Runnable{
 
     private static final List<Animal> animales = new ArrayList<>();
-    private int filaActual;
-    private int columnaActual;
-    private int maxFilas;
-    private int maxColumnas;
+    private int filaActual,columnaActual,maxFilas,maxColumnas;
     private PosicionStrategy posicionStrategy;
+
+    protected double vidaAnimal;
+    private Thread hiloAnimal;
+
     private volatile boolean caminando=true;
 
-    public Animal(int filaActual, int columnaActual, int maxFilas, int maxColumnas,PosicionStrategy posicionStrategy) {
+    public Animal(int filaActual, int columnaActual, int maxFilas, int maxColumnas, PosicionStrategy posicionStrategy) {
         this.filaActual = filaActual;
         this.columnaActual = columnaActual;
         this.maxFilas = maxFilas;
@@ -27,6 +28,9 @@ public abstract class Animal implements Runnable{
         synchronized (animales) {
             animales.add(this);
         }
+        vidaAnimal = getPeso();
+        this.hiloAnimal=new Thread(this);
+        this.hiloAnimal.start();
     }
 
     public static List<Animal> obtenerAnimales() {
@@ -35,57 +39,70 @@ public abstract class Animal implements Runnable{
         }
     }
 
-    public void eliminar() {
+    public void eliminarAnimal() {
         synchronized (animales) {
             animales.remove(this);
         }
     }
 
-    public void detener() {
-        this.caminando=false;
+    public void detenerHiloAnimal() {
+        caminando=false;
     }
 
     public void run() {
-        while (caminando) {
+        while (caminando&&this.vidaAnimal>0) {
             int filaAnterior = this.filaActual;
             int columnaAnterior = this.columnaActual;
 
             int[] nuevaPosicion = mover();
             int nuevaFila = nuevaPosicion[0];
             int nuevaColumna = nuevaPosicion[1];
+
             synchronized (Animal.class) {
                 for (Animal otro : obtenerAnimales()) {
                     if (otro != this && otro.getFilaActual() == nuevaFila && otro.getColumnaActual() == nuevaColumna) {
-                        if (this instanceof Carnivoro && otro instanceof Herbivoro) {
-                            String mensaje=((Carnivoro) this).cazar((Herbivoro) otro);
-                            this.posicionStrategy.resultados(mensaje);
-                        } else if (this instanceof Herbivoro && otro instanceof Carnivoro) {
-                            String mensaje=((Carnivoro) otro).cazar((Herbivoro) this);
-                            this.posicionStrategy.resultados(mensaje);
-                        }
                         if(this.getClass()==otro.getClass()){
-                            this.posicionStrategy.resultados("Nacio un animal "+this.getEmoji());
-                            //new Thread(this).start();
+                            this.posicionStrategy.resultadosEncuentro("Nacio un animal "+this.getEmoji());
+                            int x = ThreadLocalRandom.current().nextInt(maxFilas);
+                            int y = ThreadLocalRandom.current().nextInt(maxColumnas);
+                            Animal.crearInstancia(this.getClass(), x, y, this.maxFilas, this.maxColumnas, this.posicionStrategy);
+                        }else{
+                            if (this instanceof Carnivoro carnivoro) {
+                                String mensaje=carnivoro.cazar(otro);
+                                this.posicionStrategy.resultadosEncuentro(mensaje);
+                            } else if (otro instanceof Carnivoro carnivoro) {
+                                String mensaje=carnivoro.cazar(this);
+                                this.posicionStrategy.resultadosEncuentro(mensaje);
+                            }
                         }
                     }
                 }
                 for (Planta planta : Planta.obtenerPlantas()) {
                     if (planta.getFila() == nuevaFila && planta.getColumna() == nuevaColumna) {
-                        if (this instanceof Herbivoro) {
-                            String mensaje = ((Herbivoro) this).pastar(planta);
-                            this.posicionStrategy.resultados(mensaje);
+                        if (this instanceof Herbivoro herbivoro) {
+                            String mensaje = herbivoro.pastar(planta);
+                            this.posicionStrategy.resultadosEncuentro(mensaje);
                         }
                     }
                 }
                 this.posicionStrategy.actualizarPosicionAnimal(filaAnterior, columnaAnterior, nuevaFila, nuevaColumna, this);
+                tiempoVidaAnimal();
             }
 
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                this.hiloAnimal.interrupt();
                 break;
             }
+        }
+    }
+    public void tiempoVidaAnimal(){
+        this.vidaAnimal-=getPesoPerdidoPorMovimiento();
+        if(!(this.vidaAnimal>0)) {
+            this.posicionStrategy.resultadosEncuentro(this.getEmoji() + " murio de hambre");
+            this.eliminarAnimal();
+            this.posicionStrategy.actualizarPosicionFinal(this.filaActual,this.columnaActual);
         }
     }
 
@@ -111,20 +128,38 @@ public abstract class Animal implements Runnable{
     }
 
     public abstract String getEmoji();
+    public abstract double getPeso();
+    public abstract double getPesoPerdidoPorMovimiento();
 
     public int getFilaActual() {
         return filaActual;
     }
-
     public void setFilaActual(int filaActual) {
         this.filaActual = filaActual;
     }
-
     public int getColumnaActual() {
         return columnaActual;
     }
-
     public void setColumnaActual(int columnaActual) {
         this.columnaActual = columnaActual;
     }
+
+    public double getVidaAnimal() {
+        return vidaAnimal;
+    }
+
+    public void setVidaAnimal(double vidaAnimal) {
+        this.vidaAnimal = vidaAnimal;
+    }
+
+    public static Animal crearInstancia(Class<? extends Animal> animalClass, int fila, int columna, int maxFilas, int maxColumnas, PosicionStrategy posicionStrategy) {
+        try {
+            return animalClass.getDeclaredConstructor(int.class, int.class, int.class, int.class, PosicionStrategy.class)
+                    .newInstance(fila, columna, maxFilas, maxColumnas, posicionStrategy);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

@@ -1,10 +1,14 @@
 package pe.codegym.modulo2.herbivoros;
 
 import pe.codegym.modulo2.Animal;
+import pe.codegym.modulo2.Encuentro;
 import pe.codegym.modulo2.Planta;
 import pe.codegym.modulo2.PosicionStrategy;
+import pe.codegym.modulo2.carnivoros.Carnivoro;
 
-public class Raton extends Animal implements Herbivoro {
+import java.util.concurrent.ThreadLocalRandom;
+
+public class Raton extends Animal implements Herbivoro, Carnivoro {
 
     public Raton(int filaActual, int columnaActual, int maxFilas, int maxColumnas, PosicionStrategy posicionStrategy) {
         super(filaActual, columnaActual, maxFilas, maxColumnas, posicionStrategy);
@@ -16,9 +20,38 @@ public class Raton extends Animal implements Herbivoro {
     }
 
     @Override
+    public double getPeso() {
+        return 0.05;
+    }
+
+    @Override
+    public double getPesoPerdidoPorMovimiento() {return 0.01;}
+
+    @Override
     public String pastar(Planta planta) {
-        planta.borrar();
-        planta.eliminar();
+        vidaAnimal+=planta.getPeso();
+        planta.detenerHiloPlanta();
+        planta.eliminarPlanta();
         return getEmoji()+" Un ratón se comio una planta";
+    }
+
+    @Override
+    public String cazar(Animal animal) {
+        Encuentro encuentro= new Encuentro();
+        int porcentaje=encuentro.porcentajeEncuentro(this.getClass().getSimpleName(),animal.getClass().getSimpleName());
+
+        int numeroAleatorio= ThreadLocalRandom.current().nextInt(100);
+        if(porcentaje!=0) {
+            if (numeroAleatorio < porcentaje) {
+                vidaAnimal+=animal.getPeso();
+                animal.detenerHiloAnimal();
+                animal.eliminarAnimal();
+                return this.getEmoji() + " "+porcentaje+"%"+" ha atrapado su presa. " + animal.getEmoji()+" "+numeroAleatorio+"%";
+            } else {
+                return this.getEmoji() + " "+porcentaje+"%"+" se le escapo la presa. " + animal.getEmoji()+" "+numeroAleatorio+"%";
+            }
+        }else{
+            return "("+this.getEmoji()+","+animal.getEmoji()+")"+"no paso nada ";
+        }
     }
 }

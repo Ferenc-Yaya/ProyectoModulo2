@@ -5,8 +5,6 @@ import pe.codegym.modulo2.herbivoros.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Principal {
@@ -21,94 +19,102 @@ public class Principal {
         final int maxFilas = Integer.parseInt(sizes[0].trim());
         final int maxColumnas = Integer.parseInt(sizes[1].trim());
 
-        //JPanel panel = new JPanel();
-        PanelImagen panel =new PanelImagen();
-        panel.setLayout(new GridLayout(maxFilas, maxColumnas));
+        PanelImagen panelIsla =new PanelImagen();
+        panelIsla.setLayout(new GridLayout(maxFilas, maxColumnas));
 
-        JLabel[][] jLabels = new JLabel[maxFilas][maxColumnas];
+        JLabel[][] matriz = new JLabel[maxFilas][maxColumnas];
         Font font = new Font("Segoe UI Emoji", Font.BOLD, 15);
 
         for (int i = 0; i < maxFilas; i++) {
             for (int j = 0; j < maxColumnas; j++) {
-                jLabels[i][j] = new JLabel();
-                jLabels[i][j].setFont(font);
-                panel.add(jLabels[i][j]);
+                matriz[i][j] = new JLabel();
+                matriz[i][j].setFont(font);
+                panelIsla.add(matriz[i][j]);
             }
         }
+
+        String[] carnivoros = {"Aguila","Boa","Lobo","Oso","Zorro"};
+        JComboBox<String> comboBoxCarnivoro = new JComboBox<>(carnivoros);
+        String[] herbivoros = {"Bufalo","Caballo","Cabra","Ciervo","Conejo","Jabali","Oruga","Oveja","Pato","Raton"};
+        JComboBox<String> comboBoxHerbivoro = new JComboBox<>(herbivoros);
 
         JButton creaHerbivoro = new JButton("Crea herbivoro");
         JButton creaCarnivoro = new JButton("Crea carnivoro");
         JButton creaPlanta = new JButton("Crea Planta");
-        JPanel panelnorte=new JPanel();
-        panelnorte.setLayout(new BorderLayout());
-        panelnorte.add(creaPlanta,BorderLayout.CENTER);
-        panelnorte.add(creaCarnivoro,BorderLayout.EAST);
-        panelnorte.add(creaHerbivoro,BorderLayout.WEST);
-        frame.add(panelnorte,BorderLayout.NORTH);
 
-        JTextArea jTextArea=new JTextArea();
-        jTextArea.setFont(font);
-        jTextArea.setRows(10);
-        JScrollPane scrollPane = new JScrollPane(jTextArea);
+        JTextArea jTextAreaDatosGenerales =new JTextArea();
+        jTextAreaDatosGenerales.setFont(font);
+        jTextAreaDatosGenerales.setRows(10);
 
-        frame.add(scrollPane,BorderLayout.SOUTH);
-        PosicionStrategy positionStrategy = new PosicionSwing(jLabels,jTextArea);
+        JTextArea jTextAreaDatosEncuentro =new JTextArea();
+        jTextAreaDatosEncuentro.setFont(font);
+        jTextAreaDatosEncuentro.setRows(10);
 
-        creaPlanta.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int filaActual = ThreadLocalRandom.current().nextInt(maxFilas);
-                int columnaActual = ThreadLocalRandom.current().nextInt(maxColumnas);
-                Planta planta=new Planta(filaActual,columnaActual,positionStrategy);
-                jLabels[filaActual][columnaActual].setText(planta.getEmoji());
-                Thread thread = new Thread(planta);
-                thread.start();
-            }
-        });
-        creaHerbivoro.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int filaActual = ThreadLocalRandom.current().nextInt(maxFilas);
-                int columnaActual = ThreadLocalRandom.current().nextInt(maxColumnas);
-                Herbivoro herbivoro=switch (ThreadLocalRandom.current().nextInt(10)){
-                    case 0->new Bufalo(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 1->new Caballo(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 2->new Cabra(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 3->new Ciervo(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 4->new Conejo(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 5->new Jabali(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 6->new Oruga(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 7->new Oveja(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 8->new Pato(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 9->new Raton(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    default -> throw new IllegalStateException("Unexpected value: " + ThreadLocalRandom.current().nextInt(2));
-                };
-                jLabels[filaActual][columnaActual].setText(((Animal)herbivoro).getEmoji());
-                Thread thread= new Thread((Animal)herbivoro);
-                thread.start();
-            }
-        });
-        creaCarnivoro.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int filaActual = ThreadLocalRandom.current().nextInt(maxFilas);
-                int columnaActual = ThreadLocalRandom.current().nextInt(maxColumnas);
+        JPanel panelNorte=new JPanel();
+        panelNorte.setLayout(new GridLayout(2,3));
 
-                Carnivoro carnivoro=switch (ThreadLocalRandom.current().nextInt(5)){
-                    case 0->new Aguila(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 1->new Boa(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 2->new Lobo(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 3->new Oso(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    case 4->new Zorro(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
-                    default -> throw new IllegalStateException("Unexpected value: " + ThreadLocalRandom.current().nextInt(2));
-                };
-                jLabels[filaActual][columnaActual].setText(((Animal)carnivoro).getEmoji());
-                Thread thread= new Thread((Animal)carnivoro);
-                thread.start();
-            }
+        JPanel panelSur=new JPanel();
+        panelSur.setLayout(new GridLayout(1,2));
+
+        panelNorte.add(creaCarnivoro);
+        panelNorte.add(creaPlanta);
+        panelNorte.add(creaHerbivoro);
+        panelNorte.add(comboBoxCarnivoro);
+        panelNorte.add(new JLabel());
+        panelNorte.add(comboBoxHerbivoro);
+
+        panelSur.add(new JScrollPane(jTextAreaDatosGenerales));
+        panelSur.add(new JScrollPane(jTextAreaDatosEncuentro));
+        frame.add(panelNorte,BorderLayout.NORTH);
+        frame.add(panelSur,BorderLayout.SOUTH);
+
+        PosicionStrategy positionStrategy = new PosicionSwing(matriz,jTextAreaDatosEncuentro,jTextAreaDatosGenerales);
+        Bioma bioma=new Bioma(positionStrategy);
+
+        creaPlanta.addActionListener(e -> {
+            int filaActual = ThreadLocalRandom.current().nextInt(maxFilas);
+            int columnaActual = ThreadLocalRandom.current().nextInt(maxColumnas);
+
+            Planta planta=new Planta(filaActual,columnaActual,positionStrategy);
+            matriz[filaActual][columnaActual].setText(planta.getEmoji());
         });
 
-        frame.add(panel, BorderLayout.CENTER);
+        creaHerbivoro.addActionListener(e -> {
+            int filaActual = ThreadLocalRandom.current().nextInt(maxFilas);
+            int columnaActual = ThreadLocalRandom.current().nextInt(maxColumnas);
+
+            Herbivoro herbivoro=switch (comboBoxHerbivoro.getSelectedIndex()){
+                case 0->new Bufalo(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 1->new Caballo(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 2->new Cabra(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 3->new Ciervo(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 4->new Conejo(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 5->new Jabali(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 6->new Oruga(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 7->new Oveja(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 8->new Pato(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 9->new Raton(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                default -> throw new IllegalStateException("Unexpected value: " + ThreadLocalRandom.current().nextInt(10));
+            };
+            matriz[filaActual][columnaActual].setText(((Animal)herbivoro).getEmoji());
+        });
+
+        creaCarnivoro.addActionListener(e -> {
+            int filaActual = ThreadLocalRandom.current().nextInt(maxFilas);
+            int columnaActual = ThreadLocalRandom.current().nextInt(maxColumnas);
+
+            Carnivoro carnivoro=switch (comboBoxCarnivoro.getSelectedIndex()){
+                case 0->new Aguila(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 1->new Boa(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 2->new Lobo(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 3->new Oso(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                case 4->new Zorro(filaActual, columnaActual, maxFilas, maxColumnas,positionStrategy);
+                default -> throw new IllegalStateException("Unexpected value: " + ThreadLocalRandom.current().nextInt(5));
+            };
+            matriz[filaActual][columnaActual].setText(((Animal)carnivoro).getEmoji());
+        });
+
+        frame.add(panelIsla, BorderLayout.CENTER);
         frame.setSize(600, 600);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);

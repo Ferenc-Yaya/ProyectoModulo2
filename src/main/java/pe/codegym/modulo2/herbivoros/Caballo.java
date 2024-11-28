@@ -16,9 +16,18 @@ public class Caballo extends Animal implements Herbivoro{
     }
 
     @Override
+    public double getPeso() {
+        return 400;
+    }
+
+    @Override
+    public double getPesoPerdidoPorMovimiento() {return 60;}
+
+    @Override
     public String pastar(Planta planta) {
-        planta.borrar();
-        planta.eliminar();
+        vidaAnimal+=planta.getPeso();
+        planta.detenerHiloPlanta();
+        planta.eliminarPlanta();
         return getEmoji()+" El caballo se comio una planta";
     }
 }

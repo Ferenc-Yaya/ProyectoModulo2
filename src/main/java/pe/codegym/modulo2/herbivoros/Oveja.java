@@ -16,9 +16,18 @@ public class Oveja extends Animal implements Herbivoro {
     }
 
     @Override
+    public double getPeso() {
+        return 70;
+    }
+
+    @Override
+    public double getPesoPerdidoPorMovimiento() {return 15;}
+
+    @Override
     public String pastar(Planta planta) {
-        planta.borrar();
-        planta.eliminar();
+        vidaAnimal+=planta.getPeso();
+        planta.detenerHiloPlanta();
+        planta.eliminarPlanta();
         return getEmoji()+" Una oveja se comio una planta";
     }
 }

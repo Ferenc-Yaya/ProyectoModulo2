@@ -16,9 +16,18 @@ public class Cabra extends Animal implements Herbivoro {
     }
 
     @Override
+    public double getPeso() {
+        return 60;
+    }
+
+    @Override
+    public double getPesoPerdidoPorMovimiento() {return 10;}
+
+    @Override
     public String pastar(Planta planta) {
-        planta.borrar();
-        planta.eliminar();
+        vidaAnimal+=planta.getPeso();
+        planta.detenerHiloPlanta();
+        planta.eliminarPlanta();
         return getEmoji()+" La cabra se comio una planta";
     }
 }

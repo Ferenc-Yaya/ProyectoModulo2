@@ -3,7 +3,6 @@ package pe.codegym.modulo2.herbivoros;
 import pe.codegym.modulo2.Animal;
 import pe.codegym.modulo2.Planta;
 import pe.codegym.modulo2.PosicionStrategy;
-import pe.codegym.modulo2.carnivoros.Carnivoro;
 
 public class Bufalo extends Animal implements Herbivoro{
 
@@ -17,9 +16,20 @@ public class Bufalo extends Animal implements Herbivoro{
     }
 
     @Override
+    public double getPeso() {
+        return 700;
+    }
+
+    @Override
+    public double getPesoPerdidoPorMovimiento() {
+        return 110;
+    }
+
+    @Override
     public String pastar(Planta planta) {
-        planta.borrar();
-        planta.eliminar();
+        vidaAnimal+=planta.getPeso();
+        planta.detenerHiloPlanta();
+        planta.eliminarPlanta();
         return getEmoji()+" El búfalo se comio una planta";
     }
 }

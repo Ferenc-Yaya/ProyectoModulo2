@@ -17,9 +17,18 @@ public class Conejo extends Animal implements Herbivoro {
     }
 
     @Override
+    public double getPeso() {
+        return 2;
+    }
+
+    @Override
+    public double getPesoPerdidoPorMovimiento() {return 0.45;}
+
+    @Override
     public String pastar(Planta planta) {
-        planta.borrar();
-        planta.eliminar();
+        vidaAnimal+=planta.getPeso();
+        planta.detenerHiloPlanta();
+        planta.eliminarPlanta();
         return getEmoji()+" El conejo se comio una planta";
     }
 }
